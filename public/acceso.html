@@ -47,7 +47,6 @@
             font-size: 12px;
             margin-bottom: 25px;
         }
-        /* Pestañas de Navegación */
         .auth-tabs {
             display: flex;
             margin-bottom: 20px;
@@ -134,7 +133,6 @@
         <div class="brand-title">GUARDIÁN POS</div>
         <div class="brand-subtitle">Portal Administrativo de Clientes</div>
 
-        <!-- Pestañas -->
         <div class="auth-tabs">
             <button class="tab-btn active" onclick="cambiarTab('login')">Iniciar Sesión</button>
             <button class="tab-btn" onclick="cambiarTab('activar')">Primera Vez / Activar</button>
@@ -176,7 +174,9 @@
     </div>
 
     <script>
-        // Cambiar entre pestañas de Login y Activación
+        // Detecta automáticamente si estamos en producción (guardianpos.mx) o en local
+        const API_BASE = window.location.origin;
+
         function cambiarTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.form-section').forEach(sec => sec.classList.remove('active'));
@@ -190,17 +190,16 @@
             }
         }
 
-        // Variable temporal para almacenar el ID de la licencia al verificar los datos
         let licenciaVerificadaId = null;
 
-        // 1. LÓGICA DE INICIO DE SESIÓN WEB
+        // 1. LOGIN WEB
         async function realizarLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
             try {
-                const response = await fetch('/api/licencias/web/login', {
+                const response = await fetch(`${API_BASE}/api/licencias/web/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -220,7 +219,7 @@
             }
         }
 
-        // 2. LÓGICA DE ACTIVACIÓN / PRIMERA VEZ (Paso 1: Verificar datos)
+        // 2. VERIFICAR ACTIVACIÓN (Paso 1)
         async function verificarActivacion(e) {
             e.preventDefault();
             const licencia = document.getElementById('activar-licencia').value;
@@ -231,7 +230,7 @@
             btnVerificar.disabled = true;
 
             try {
-                const response = await fetch('/api/licencias/web/verificar-activacion', {
+                const response = await fetch(`${API_BASE}/api/licencias/web/verificar-activacion`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ licencia, email })
@@ -242,7 +241,6 @@
                 if (data.exito) {
                     licenciaVerificadaId = data.idLicencia;
                     
-                    // Transformamos el formulario de activación para pedir la nueva contraseña web
                     const formContainer = document.getElementById('section-activar');
                     formContainer.innerHTML = `
                         <div style="background-color: #1b331c; border: 1px solid #2e7d32; padding: 10px; border-radius: 6px; font-size: 12px; color: #81c784; margin-bottom: 15px; text-align: center;">
@@ -257,7 +255,7 @@
                         </form>
                     `;
                 } else {
-                    alert('Aviso: ' + (data.error || 'No se encontró ningún registro con esos datos.'));
+                    alert('Aviso del Servidor: ' + (data.error || 'No se encontró ningún registro con esos datos.'));
                     btnVerificar.innerText = 'VERIFICAR DATOS';
                     btnVerificar.disabled = false;
                 }
@@ -269,7 +267,7 @@
             }
         }
 
-        // 3. LÓGICA DE CREACIÓN DE CONTRASEÑA WEB (Paso 2)
+        // 3. GUARDAR CONTRASEÑA WEB (Paso 2)
         async function guardarPasswordWeb(e) {
             e.preventDefault();
             const passwordWeb = document.getElementById('nuevo-password').value;
@@ -281,7 +279,7 @@
             }
 
             try {
-                const response = await fetch('/api/licencias/web/crear-password', {
+                const response = await fetch(`${API_BASE}/api/licencias/web/crear-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ idLicencia: licenciaVerificadaId, passwordWeb })
