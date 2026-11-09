@@ -160,7 +160,7 @@
             <form onsubmit="verificarActivacion(event)">
                 <div class="input-group">
                     <label>Número de Cliente o Licencia</label>
-                    <input type="text" id="activar-licencia" required placeholder="Ej. GPOS-TRIAL-XXXX o OC-2026">
+                    <input type="text" id="activar-licencia" required placeholder="Ej. GPOS-TRIAL-XXXX o CLI-XXXX">
                 </div>
                 <div class="input-group">
                     <label>Correo Electrónico Registrado</label>
@@ -200,7 +200,6 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                // Ajusta la URL de tu API según corresponda (ej. '/api/licencias/web/login' o URL completa si está separado)
                 const response = await fetch('/api/licencias/web/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -211,7 +210,6 @@
 
                 if (data.exito) {
                     alert('¡Bienvenido al panel!');
-                    // Redirigir al panel de administración del cliente
                     window.location.href = 'panel.html';
                 } else {
                     alert('Error: ' + (data.error || 'Credenciales incorrectas'));
@@ -293,7 +291,6 @@
 
                 if (data.exito) {
                     alert(data.mensaje);
-                    // Cambiamos automáticamente a la pestaña de login para que ingrese con su nueva cuenta
                     cambiarTab('login');
                 } else {
                     alert('Error: ' + (data.error || 'No se pudo guardar la contraseña.'));
